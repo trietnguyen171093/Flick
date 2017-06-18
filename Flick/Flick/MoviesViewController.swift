@@ -45,6 +45,11 @@ class MoviesViewController: UIViewController, UITableViewDelegate, UITableViewDa
       if isInternetAvailable(){
         // Hide the UIView if network is connected
         errView?.isHidden = true
+        
+        // Display HUD right before the request is made
+        let spinAnimation = MBProgressHUD.showAdded(to: self.view, animated: true)
+        spinAnimation.labelText = "Loading"
+        
         let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
         let url = URL(string: "http://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)")
         let request = URLRequest(
@@ -62,7 +67,8 @@ class MoviesViewController: UIViewController, UITableViewDelegate, UITableViewDa
                             if let data = dataOrNil {
                               if let responseDictionary = try! JSONSerialization.jsonObject(
                                 with: data, options:[]) as? NSDictionary {
-                                
+                                // Stop show animation
+                                MBProgressHUD.hide(for: self.view, animated: true)
                                 self.movies = responseDictionary["results"] as! [NSDictionary]
                                 print("response: \(self.movies)")
                                 self.tableView.reloadData()
@@ -70,7 +76,6 @@ class MoviesViewController: UIViewController, UITableViewDelegate, UITableViewDa
                             }
           })
         task.resume()
-//        loadDataFromNetwork()
       }
       else{
         // debug print
@@ -91,33 +96,8 @@ class MoviesViewController: UIViewController, UITableViewDelegate, UITableViewDa
       }
       
     }
-    func loadDataFromNetwork() {
-      
-      // ... Create the NSURLRequest (myRequest) ...
-      let myRequest = NSURLRequest ()
-      
-      // Configure session so that completion handler is executed on main UI thread
-      let session = URLSession(
-        configuration: URLSessionConfiguration.default,
-        delegate:nil,
-        delegateQueue:OperationQueue.main
-      )
-      
-      // Display HUD right before the request is made
-      MBProgressHUD.showAdded(to: self.view, animated: true)
-      
-      let task : URLSessionDataTask = session.dataTask(with: myRequest as URLRequest,
-                                                                    completionHandler: { (data, response, error) in
-                                                                      
-                                                                      // Hide HUD once the network request comes back (must be done on main UI thread)
-                                                                      MBProgressHUD.hide(for: self.view, animated: true)
-                                                                      
-                                                                      // ... Remainder of response handling code ...
-                                                                      
-      });
-      task.resume()
-    }
-    // This func check network avaiable or not
+  
+  // This func check network avaiable or not
     func isInternetAvailable() -> Bool
     {
       var zeroAddress = sockaddr_in()
