@@ -8,6 +8,7 @@
 
 import UIKit
 import AFNetworking
+import MBProgressHUD
 
 class MoviesViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
@@ -69,7 +70,7 @@ class MoviesViewController: UIViewController, UITableViewDelegate, UITableViewDa
                             }
           })
         task.resume()
-        
+//        loadDataFromNetwork()
       }
       else{
         // debug print
@@ -89,6 +90,32 @@ class MoviesViewController: UIViewController, UITableViewDelegate, UITableViewDa
         errView?.isHidden = false
       }
       
+    }
+    func loadDataFromNetwork() {
+      
+      // ... Create the NSURLRequest (myRequest) ...
+      let myRequest = NSURLRequest ()
+      
+      // Configure session so that completion handler is executed on main UI thread
+      let session = URLSession(
+        configuration: URLSessionConfiguration.default,
+        delegate:nil,
+        delegateQueue:OperationQueue.main
+      )
+      
+      // Display HUD right before the request is made
+      MBProgressHUD.showAdded(to: self.view, animated: true)
+      
+      let task : URLSessionDataTask = session.dataTask(with: myRequest as URLRequest,
+                                                                    completionHandler: { (data, response, error) in
+                                                                      
+                                                                      // Hide HUD once the network request comes back (must be done on main UI thread)
+                                                                      MBProgressHUD.hide(for: self.view, animated: true)
+                                                                      
+                                                                      // ... Remainder of response handling code ...
+                                                                      
+      });
+      task.resume()
     }
     // This func check network avaiable or not
     func isInternetAvailable() -> Bool
@@ -147,7 +174,8 @@ class MoviesViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
         nextVC.imgUrl = posterBaseUrl + (movies[(ip?.row)!]["poster_path"] as! String)
 
-        nextVC.overview = (movies[(ip?.row)!]["overview"] as? String)!
+        nextVC.overText = (movies[(ip?.row)!]["overview"] as? String)!
+        nextVC.titleText = (movies[(ip?.row)!]["title"] as? String)!
     }
   
 
