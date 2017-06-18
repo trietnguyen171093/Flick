@@ -17,6 +17,7 @@ class MoviesViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var selectedOverview = ""
   
     var movies = [NSDictionary]()
+    let refreshControl = UIRefreshControl()
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -25,9 +26,19 @@ class MoviesViewController: UIViewController, UITableViewDelegate, UITableViewDa
       tableView.dataSource = self
       
       networkFetch();
+      // Adding Pulling refresh
+      
+      refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
+      refreshControl.addTarget(self, action: #selector(MoviesViewController.fetchList), for: UIControlEvents.valueChanged)
+      tableView.addSubview(refreshControl) // not required when using UITableViewController
+    }
+    func fetchList() {
+      // Code to refresh table view
+      refreshControl.beginRefreshing()
+      networkFetch()
+      refreshControl.endRefreshing()
     }
 
-  
     func networkFetch()
     {
       let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
